@@ -65,11 +65,11 @@ class Sample:
         """
         self.atom_list = atom_list
 
-    def add_atom(self, AtomObj):
+    def add_atom(self, atomObj):
         """
         Method to add an atom to the sample
         """
-        self.atom_list.append(AtomObj)
+        self.atom_list.append(atomObj)
 
     def translation(self, trans_vec):
         """
