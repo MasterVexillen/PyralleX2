@@ -1,5 +1,5 @@
 """
-pyrallex.screen.py
+pyrallex.sample.py
 Version: 0.1
 
 AUTHOR: Neville Yee
@@ -57,7 +57,7 @@ class Sample:
 
     def __init__(
             self,
-            atom_list=[],
+            atom_list=list(),
     ):
 
         """
@@ -94,7 +94,8 @@ class Sample:
         # Translate whole cell by original offset of centroid
         self.translation(-centroid)
 
-    def _rodrigues(self, vector, rot_axis, angle):
+    @staticmethod
+    def _rodrigues(vector, rot_axis, angle):
         """
         Rodrigues' rotation formula to rotate an arbitrary vector
 
