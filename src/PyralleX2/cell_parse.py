@@ -1,17 +1,13 @@
 """
-pyrallex.cell_parse.py
+pyrallex2.cell_parse.py
 Version: 0.1
 
 AUTHOR: Neville Yee
-Date: 4-Feb-2021
+Date: 5-Feb-2021
 """
 
 import re
 import numpy as np
-import pandas as pd
-from sklearn.preprocessing import normalize
-
-from Pyrallex_revamped.sample import Atom, Sample
 
 
 class Cell:
@@ -187,3 +183,16 @@ class Cell:
                              [b1, b2, 0.],
                              [c1, c2, c3]], dtype=np.float64)
         return cart_out
+
+def read_cell_file(filename):
+    """
+    Method to read in a castep cell file
+
+    ARGS:
+        filename (str): path to .cell file
+
+    RETURNS:
+        Cell object
+    """
+
+    return Cell(filename)

@@ -1,5 +1,5 @@
 """
-pyrallex.sample.py
+pyrallex2.sample.py
 Version: 0.1
 
 AUTHOR: Neville Yee
@@ -8,6 +8,9 @@ Date: 4-Feb-2021
 
 import numpy as np
 from sklearn.preprocessing import normalize
+
+import PyralleX2.src.PyralleX2.cell_parse as Cell_parse
+import PyralleX2.Data.atom_param as Atom_param
 
 class Atom:
     """
@@ -124,3 +127,30 @@ class Sample:
         """
         for count, atom in enumerate(self.atom_list):
             atom.pos = self._rodrigues(atom.pos, rot_axis, angle)
+
+def create_sample(cell_filename):
+    """
+    Create sample using given cell file
+
+    ARGS:
+        cell_filename (str): path to castep cell file
+
+    RETURNS:
+        Sample object
+    """
+
+    # Read cell file and create empty sample
+    my_cell = Cell_parse.read_cell_file(cell_filename)
+    my_sample = Sample()
+
+    # Load preset atom parameters
+    atom_params = Atom_param.atom_params
+
+    for index, atom in enumerate(my_cell.atomtypes_array):
+        curr_atom = Atom(element=atom,
+                         charge=atom_params[atom_params['Name']==atom].Charge.values[0],
+                         width=atom_params[atom_params['Name']==atom].Width.values[0],
+                         pos=my_cell.position_array[index])
+        my_sample.add_atom(curr_atom)
+
+    return my_sample
