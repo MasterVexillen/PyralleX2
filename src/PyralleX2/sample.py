@@ -22,7 +22,8 @@ class Atom:
             element=None,
             charge=None,
             width=None,
-            pos=None
+            pos=None,
+            frac_pos=None,
     ):
 
         """
@@ -33,12 +34,14 @@ class Atom:
             charge (int): Charge (atomic number) of atom
             width (float): Width (FWHM) of atom
             pos (nparray): Position of atom
+            frac_pos (nparray): Fractional coordinates of atom
         """
 
         self.element = element
         self.charge = charge
         self.width = width
         self.pos = np.array(pos, dtype=np.float32)
+        self.frac_pos = frac_pos
 
         self.atom_k = width
 
@@ -61,12 +64,18 @@ class Sample:
     def __init__(
             self,
             atom_list=list(),
+            cell_vec=None,
     ):
 
         """
         Initialise a Sample object
+
+        ARGS:
+            atom_list (list): list of Atom objects
+            cell_vec (ndarray): cell vectors
         """
         self.atom_list = atom_list
+        self.cell_vec = cell_vec
 
     def add_atom(self, atomObj):
         """
@@ -92,7 +101,6 @@ class Sample:
         centroid = np.zeros(3)
         for count, atom in enumerate(self.atom_list):
             centroid += atom.pos
-        centroid /= len(self.atom_list)
 
         # Translate whole cell by original offset of centroid
         self.translation(-centroid)
@@ -141,7 +149,7 @@ def create_sample(cell_filename):
 
     # Read cell file and create empty sample
     my_cell = Cell_parse.read_cell_file(cell_filename)
-    my_sample = Sample()
+    my_sample = Sample(cell_vec=my_cell.lattice_array)
 
     # Load preset atom parameters
     atom_params = Atom_param.atom_params
@@ -150,7 +158,9 @@ def create_sample(cell_filename):
         curr_atom = Atom(element=atom,
                          charge=atom_params[atom_params['Name']==atom].Charge.values[0],
                          width=atom_params[atom_params['Name']==atom].Width.values[0],
-                         pos=my_cell.position_array[index])
+                         pos=my_cell.position_array[index],
+                         frac_pos=my_cell.fractional_array[index])
         my_sample.add_atom(curr_atom)
+    my_sample.centre()
 
     return my_sample

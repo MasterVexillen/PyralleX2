@@ -1,5 +1,5 @@
 """
-pyrallex.screen.py
+pyrallex2.screen.py
 Version: 0.1
 
 AUTHOR: Neville Yee
@@ -17,6 +17,7 @@ class Screen:
     def __init__(
             self,
             npix=None,
+            dims=None,
             screen_shape=None,
             max_twotheta=None,
     ):
@@ -26,15 +27,17 @@ class Screen:
 
         ARGS:
             npix (int): number of pixels along horizontal/vertical axis
+            dims (float): real dimensions of screen (in cm)
             max_twotheta (float): maximum two-theta angle on horizontal/vertical axis
             screen_shape (str): shape of detector screen (spherical / flat)
         """
 
         self.npix = npix
+        self.dims = dims * 1.e8
         self.max_twotheta = max_twotheta
         self.screen_shape = screen_shape
 
-        self.coords = (screen_shape, npix, max_twotheta)
+        self.coords = (screen_shape, dims, npix, max_twotheta)
 
     @property
     def coords(self):
@@ -45,38 +48,41 @@ class Screen:
 
     @coords.setter
     def coords(self, vals):
-        shape_in = vals[0]
-        npix_in = vals[1]
-        max_tt_in = vals[2]
+        self._coords = np.zeros((self.npix, self.npix, 3), dtype=np.float32)
 
-        self._coords = np.empty((npix_in, npix_in, 3), dtype=np.float32)
-        if shape_in == 'flat':
-            # WLOG, assume centre of screen at unit distance from geometric centroid of sample
-            self._coords[:, :, 0] = 1
-            dx = np.tan(max_tt_in*0.5) * 2 / (npix_in-1)
-            imin = -0.5*(npix_in-1)
-            jmin = -0.5*(npix_in-1)
+        if self.screen_shape == 'flat':
+            screen_dist = 0.5*self.dims / np.tan(np.radians(0.5*self.max_twotheta))
+            dy = self.dims / self.npix
+            dz = self.dims / self.npix
+            ymin = -0.5*self.dims
+            zmin = -0.5*self.dims
+            for i in range(self.npix):
+                for j in range(self.npix):
+                    self._coords[i, j, :] = [screen_dist, ymin+i*dy, zmin+j*dz]
 
-            for icount in range(npix_in):
-                self._coords[icount, :, 1] = (imin + icount)*dx
-            for jcount in range(npix_in):
-                self._coords[:, jcount, 2] = (jmin + jcount)*dx
+        elif self.screen_shape == 'cylindrical':
+            screen_dist = self.dims / np.radians(self.max_twotheta)         # s = r*theta (in radians)
+            theta_min = -0.5*np.radians(self.max_twotheta)
+            dtheta = -2*theta_min / self.npix
+            zmin = -0.5*self.dims
+            dz = self.dims / self.npix
+            for z_count in range(self.npix):
+                ztemp   = zmin + z_count*dz
+                for theta_count in range(self.npix):
+                    azimuth = theta_min + theta_count*dtheta
+                    xtemp   = screen_dist * np.cos(azimuth)
+                    ytemp   = screen_dist * np.sin(azimuth)
+                    self._coords[theta_count,z_count,:] = [xtemp, ytemp, ztemp]
 
-            self._coords = normalize(self._coords, axis=2)
+        # Normalise coordinates of each pixel
+        coords_norm = np.linalg.norm(self._coords, axis=2)
+        for icount in range(self.npix):
+            for jcount in range(self.npix):
+                self._coords[icount, jcount] /= coords_norm[icount, jcount]
 
-        elif shape_in == 'spherical':
-            d_angle = np.deg2rad(max_tt_in / (npix_in-1))
-            for phi_count in range(npix_in):
-                curr_phi = (imin + phi_count) * d_angle
-            for theta_count in range(npix_in):
-                curr_theta = (jmin + theta_count) * d_angle
-                self._coords[phi_count, theta_count, 0] = np.sin(curr_theta) * np.cos(curr_phi)
-                self._coords[phi_count, theta_count, 1] = np.sin(curr_theta) * np.sin(curr_phi)
-                self._coords[phi_count, theta_count, 2] = np.cos(curr_theta)
-
-
-def new_screen(
+def create_screen(
         npix=None,
+        dims=None,
         screen_shape=None,
         max_twotheta=None,
 ):
@@ -85,4 +91,4 @@ def new_screen(
     Create a new Screen object
     """
 
-    return Screen(npix, screen_shape, max_twotheta)
+    return Screen(npix, dims, screen_shape, max_twotheta)

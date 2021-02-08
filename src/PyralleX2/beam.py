@@ -1,5 +1,5 @@
 """
-pyrallex.beam.py
+pyrallex2.beam.py
 Version: 0.1
 
 AUTHOR: Neville Yee
@@ -16,8 +16,8 @@ class Beam:
 
     def __init__(
             self,
-            wavelength=1.5418,
-            beam_vec=[1, 0, 0],
+            wavelength=None,
+            beam_vec=None,
     ):
         """
         Initialise the beam.
@@ -29,10 +29,10 @@ class Beam:
         """
 
         self.wavelength = wavelength
-        self.beam_vec = normalize(np.array(beam_vec, dtype=np.float32))
+        self.beam_vec = normalize(np.array(beam_vec, dtype=np.float32).reshape(1, -1))[0]
 
 
-def new_beam(
+def create_beam(
         wavelength=None,
         beam_vec=None,
 ):
