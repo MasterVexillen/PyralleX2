@@ -9,7 +9,7 @@ Date: 4-Feb-2021
 import numpy as np
 from sklearn.preprocessing import normalize
 
-import PyralleX2.src.PyralleX2.cell_parse as Cell_parse
+import PyralleX2.cell_parse as Cell_parse
 import PyralleX2.Data.atom_param as Atom_param
 
 class Atom:

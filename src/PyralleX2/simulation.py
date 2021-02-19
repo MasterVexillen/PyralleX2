@@ -69,8 +69,6 @@ class Simulation:
         """
 
         # Form factor for single scan
-        ss_form_factor = np.zeros((self.screen.npix, self.screen.npix), dtype=np.complex64)
-
         screen_s = (self.screen.coords-self.beam.beam_vec) / self.beam.wavelength
         screen_hkl = np.matmul(screen_s, self.sample.cell_vec.T)
         s_squared = np.linalg.norm(screen_s, axis=2)**2
@@ -88,19 +86,25 @@ class Simulation:
 
         phase_terms = screen_hkl @ frac_pos_array
         times.append(time.time()); print('pt', times[-1]-times[-2], phase_terms.shape)
+        del frac_pos_array
+        del screen_hkl
+        gc.collect()
 
         all_phase_kernals = np.exp(phase_terms)
         times.append(time.time()); print('kern', times[-1]-times[-2], all_phase_kernals.shape)
-
-        del screen_hkl
         del phase_terms
         gc.collect()
 
         form_factor_atoms = atom_fs0_array * all_phase_kernals
-        times.append(time.time()); print('4', times[-1]-times[-2], ss_form_factor.shape)
+        times.append(time.time()); print('ff', times[-1]-times[-2], form_factor_atoms.shape)
+        del atom_fs0_array
+        del all_phase_kernals
+        gc.collect()
 
         ss_form_factor = np.sum(form_factor_atoms, axis=2)
         times.append(time.time()); print('5', times[-1]-times[-2], ss_form_factor.shape, '\n')
+        del form_factor_atoms
+        gc.collect()
 
         # Blot out centre
         screen_twotheta = np.degrees(np.arcsin(np.sqrt(s_squared)*self.beam.wavelength))

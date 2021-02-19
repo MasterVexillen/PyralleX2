@@ -80,9 +80,6 @@ def validate_config(filename_in):
 
     Args:
     filename_in (str): filename of the input yaml file
-
-    Output:
-    bool
     """
 
     params = read_config(filename_in)
@@ -94,11 +91,11 @@ def validate_config(filename_in):
         "Error in params.validate: Input Cell file not found."
 
     # Check beam group params
-    assert (isinstance(params['beams']['wavelength'], float) and \
-            params['beams']['wavelength'] > 0),\
+    assert (isinstance(params['beam']['wavelength'], float) and \
+            params['beam']['wavelength'] > 0),\
         "Error in params.validate: Wavelength must be a float > 0."
-    assert (isinstance(params['beams']['vector'], list) and \
-            len(params['beams']['vector'])==3),\
+    assert (isinstance(params['beam']['vector'], list) and \
+            len(params['beam']['vector'])==3),\
         "Error in params.validate: Beam vector must be a list of length 3."
 
     # Check screen group params
