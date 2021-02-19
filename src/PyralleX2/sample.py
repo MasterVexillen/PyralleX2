@@ -120,7 +120,8 @@ class Sample:
         """
         # Transform data for easier processing
         vector = np.array(vector, dtype=np.float32)
-        rot_axis = normalize(np.array(rot_axis, dtype=np.float32)) # must be a unit vector
+        rot_axis = np.array(rot_axis, dtype=np.float32)
+        rot_axis /= np.linalg.norm(rot_axis)
         angle = np.deg2rad(angle)
 
         rotated = vector * np.cos(angle) + \
