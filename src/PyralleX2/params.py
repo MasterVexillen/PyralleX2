@@ -50,7 +50,7 @@ def create_config(filename_in):
     }
 
     with open(filename_in, 'w') as f:
-        yaml.dump(config_dict, f)
+        yaml.dump(config_dict, f, indent=4, sort_keys=False)
 
 
 def read_config(filename_in):
