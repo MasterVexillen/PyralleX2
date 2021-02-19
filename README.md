@@ -1,5 +1,5 @@
 # PyralleX2
-A simulation suite of X-ray diffraction experiments (WIP)
+An X-ray diffraction simulation suite (WIP)
 
 ## Installation
 1. Git clone repo
