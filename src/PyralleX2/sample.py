@@ -134,8 +134,11 @@ class Sample:
         """
         Method to rotate whole cell
         """
+        for vec in range(3):
+            self.cell_vec[vec] = self._rodrigues(self.cell_vec[vec], rot_axis, angle)
         for count, atom in enumerate(self.atom_list):
             atom.pos = self._rodrigues(atom.pos, rot_axis, angle)
+
 
 def create_sample(cell_filename):
     """
