@@ -33,4 +33,5 @@ python ${PYRA_PATH}/main.py TASK [config]
 ```
 where `${PYRA_PATH}` is the folder containing the codebase. Currently allowed `TASK`s are:
 * `new_config`: Creates new config (YAML) file as simulation inputs.
-* `validate`: Validate an existing config file. Config file must be provided.
+* `validate`: Validate an existing config file. *Config file must be provided.*
+* `simulate`: Perform simulation using parameters in config file. *Config file must be provided.*

@@ -4,18 +4,18 @@ PyralleX2.main.py
 Author: Neville B.-y. Yee
 Date: 19-Feb-2021
 
-Version: 0.1
+Version: 0.4
 """
 
 import sys
 import os
 import time
 
-# import PyralleX2.sample as sample
-# import PyralleX2.beam as beam
-# import PyralleX2.screen as screen
-# import PyralleX2.simulation as simulation
-import PyralleX2.src.PyralleX2.params as params
+import PyralleX2.src.PyralleX2.sample as Sample
+import PyralleX2.src.PyralleX2.beam as Beam
+import PyralleX2.src.PyralleX2.screen as Screen
+import PyralleX2.src.PyralleX2.simulation as Simulation
+import PyralleX2.src.PyralleX2.params as Params
 
 
 def get_task():
@@ -37,6 +37,50 @@ def get_task():
     return task
 
 
+def get_simulation_objs(params_in):
+    """
+    Prepare environment for simulation
+
+    Arg:
+    params_in (dict): dictionary containing parameters
+
+    Returns:
+    tuple
+    """
+
+    # Create sample for simulation
+    my_sample = Sample.create_sample(params_in['sample']['sample_file'])
+
+    # Prepare X-ray beam
+    my_beam = Beam.create_beam(
+        wavelength=params_in['beam']['wavelength'],
+        beam_vec=params_in['beam']['vector'],
+    )
+
+    # Prepare screen
+    my_screen = Screen.create_screen(
+        npix=params_in['screen']['pixels'],
+        dims=params_in['screen']['dimensions'],
+        screen_shape=params_in['screen']['shape'],
+        max_twotheta=params_in['screen']['max_2_theta'],
+    )
+
+    # Create object for storing simulation data
+    my_image = Simulation.create_simulation(
+        my_sample,
+        my_screen,
+        my_beam,
+        mct=params_in['simulation']['run_tomo'],
+        mct_rot_axis=params_in['simulation']['rotational_axis'],
+        mct_angle_step=params_in['simulation']['angle_step'],
+        mct_max_angle=params_in['simulation']['max_angle'],
+        bs_coverage=params_in['output']['backstop_coverage'],
+        gamma_corr=params_in['output']['gamma_correction'],
+    )
+
+    return (my_sample, my_beam, my_screen, my_image)
+
+
 def main():
     """
     Main interface of PyralleX2
@@ -49,7 +93,7 @@ def main():
         config_name = input("Name of new config file? (Default: config.yaml) ")
         if len(config_name) == 0:
             config_name = "config.yaml"
-        params.create_config(config_name)
+        Params.create_config(config_name)
 
     elif task == 'validate':
         assert (len(sys.argv)==3),\
@@ -58,7 +102,24 @@ def main():
         assert (os.path.isfile(config_name)),\
             "Error: Config file not found."
 
-        params.validate_config(config_name)
+        Params.validate_config(config_name)
+
+    elif task == 'simulate':
+        assert (len(sys.argv)==3),\
+            "Error: config file must be provided for task = 'simulate'."
+        config_name = sys.argv[2]
+        assert (os.path.isfile(config_name)),\
+            "Error: Config file not found."
+
+        params = Params.read_config(config_name)
+        sample, beam, screen, image = get_simulation_objs(params)
+
+        # Let there be light (...x-ray)
+        image.full_scan()
+
+        # Export file
+        mrc_name = params['output']['output_file']
+        Simulation.export_mrc(mrc_name, image)
 
 
 if __name__ == '__main__':
