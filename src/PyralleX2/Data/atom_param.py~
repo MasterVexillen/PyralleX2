@@ -1,0 +1,11 @@
+"""
+atom_param.py
+Version: 0.1
+
+AUTHOR: Neville Yee
+Date: 08-Feb-2021
+"""
+
+import pandas as pd
+
+atom_params = pd.read_csv('./Atoms.csv')
