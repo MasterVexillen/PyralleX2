@@ -20,6 +20,7 @@ class Screen:
             dims=None,
             screen_shape=None,
             max_twotheta=None,
+            beam_axis=None,
     ):
 
         """
@@ -30,14 +31,17 @@ class Screen:
             dims (float): real dimensions of screen (in cm)
             max_twotheta (float): maximum two-theta angle on horizontal/vertical axis
             screen_shape (str): shape of detector screen (spherical / flat)
+            beam_axis (list): axis of xray beam
         """
 
         self.npix = npix
         self.dims = dims * 1.e8
         self.max_twotheta = max_twotheta
         self.screen_shape = screen_shape
+        self.beam_axis = beam_axis
 
         self.coords = (screen_shape, dims, npix, max_twotheta)
+        self._rotate_screen(beam_axis)
 
     @property
     def coords(self):
@@ -80,15 +84,40 @@ class Screen:
             for jcount in range(self.npix):
                 self._coords[icount, jcount] /= coords_norm[icount, jcount]
 
+    def _rotate_screen(self, scan_axis_in):
+        """
+        Move (rotate) screen according to given rotation axis
+
+        Args:
+        scan_axis_in (list): beam axis
+        """
+
+        default_axis = np.array([1, 0, 0])
+        scan_axis_norm = np.array(scan_axis_in) / np.linalg.norm(np.array(scan_axis_in))
+
+        rot_axis = np.cross(default_axis, scan_axis_norm)
+        rot_angle = np.arccos(np.dot(default_axis, scan_axis_norm))
+
+        if abs(rot_angle) < 1.0e-4:
+            pass
+        else:
+            for icount in range(self.npix):
+                for jcount in range(self.npix):
+                    self._coords[icount, jcount] = \
+                        self._coords[icount, jcount] * np.cos(rot_angle) + \
+                        np.cross(rot_axis, self._coords[icount, jcount]) * np.sin(rot_angle) + \
+                        rot_axis * np.dot(rot_axis, self._coords[icount, jcount]) * (1 - np.cos(rot_angle))
+
 def create_screen(
         npix=None,
         dims=None,
         screen_shape=None,
         max_twotheta=None,
+        beam_axis=None,
 ):
 
     """
     Create a new Screen object
     """
 
-    return Screen(npix, dims, screen_shape, max_twotheta)
+    return Screen(npix, dims, screen_shape, max_twotheta, beam_axis)

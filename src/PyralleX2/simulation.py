@@ -75,35 +75,26 @@ class Simulation:
         s_squared = np.linalg.norm(screen_s, axis=2)**2
         ssq2_const = -np.pi**2 * s_squared
 
-        times = []
-        times.append(time.time())
-
         atom_fs0_array = np.array([atom.charge * np.exp(ssq2_const / atom.atom_k) \
                                    for atom in self.sample.atom_list]).T
-        times.append(time.time()); print('1', times[-1]-times[-2], atom_fs0_array.shape)
 
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
-        times.append(time.time()); print('2', times[-1]-times[-2], frac_pos_array.shape)
 
         phase_terms = screen_hkl @ frac_pos_array
-        times.append(time.time()); print('pt', times[-1]-times[-2], phase_terms.shape)
         del frac_pos_array
         del screen_hkl
         gc.collect()
 
         all_phase_kernals = np.exp(phase_terms)
-        times.append(time.time()); print('kern', times[-1]-times[-2], all_phase_kernals.shape)
         del phase_terms
         gc.collect()
 
         form_factor_atoms = atom_fs0_array * all_phase_kernals
-        times.append(time.time()); print('ff', times[-1]-times[-2], form_factor_atoms.shape)
         del atom_fs0_array
         del all_phase_kernals
         gc.collect()
 
         ss_form_factor = np.sum(form_factor_atoms, axis=2)
-        times.append(time.time()); print('5', times[-1]-times[-2], ss_form_factor.shape, '\n')
         del form_factor_atoms
         gc.collect()
 

@@ -64,6 +64,7 @@ def get_simulation_objs(params_in):
         dims=params_in['screen']['dimensions'],
         screen_shape=params_in['screen']['shape'],
         max_twotheta=params_in['screen']['max_2_theta'],
+        beam_axis=params_in['beam']['vector'],
     )
 
     # Create object for storing simulation data
