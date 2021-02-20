@@ -29,7 +29,6 @@ class Simulation:
             mct_angle_step=None,
             mct_max_angle=None,
             bs_coverage=None,
-            gamma_corr=None,
     ):
         """
         Initialise a simulation.
@@ -43,7 +42,6 @@ class Simulation:
             mct_angle_step (float): step size of rotation angles for mCT simulation
             mct_max_angle (float): max rotation angles for mCT simulation
             bs_coverage (float): angular coverage of the lead backstop (to prevent central burnout)
-            gamma_corr (float): gamma correction parameters
         """
 
         self.sample = sampleObj
@@ -54,7 +52,6 @@ class Simulation:
         self.angle_step = mct_angle_step
         self.max_angle = mct_max_angle
         self.bs_coverage = bs_coverage
-        self.gamma_corr = gamma_corr
 
         if not mct:
             self.num_images = 1
@@ -117,9 +114,6 @@ class Simulation:
         ss_intensities = np.abs(ss_form_factor)**2
         ss_intensities /= np.max(ss_intensities)
 
-        # apply gamma correction
-        ss_intensities = ss_intensities**(self.gamma_corr)
-
         return ss_form_factor, ss_intensities
 
     def full_scan(self):
@@ -164,7 +158,6 @@ def create_simulation(
         mct_angle_step=None,
         mct_max_angle=None,
         bs_coverage=None,
-        gamma_corr=None
 ):
     """
     Create a new Simulation object
@@ -178,7 +171,6 @@ def create_simulation(
         mct_angle_step (float): step size of rotation angles for mCT simulation
         mct_max_angle (float): max rotation angles for mCT simulation
         bs_coverage (float): angular coverage of the lead backstop (to prevent central burnout)
-        gamma_corr (float): gamma correction parameters
 
     RETURNS:
         Simulation object
@@ -193,7 +185,6 @@ def create_simulation(
         mct_angle_step,
         mct_max_angle,
         bs_coverage,
-        gamma_corr,
     )
 
 
@@ -210,5 +201,8 @@ def export_mrc(filename, simObj):
     assert (not os.path.isfile(filename)), \
         "Error in simulation.export_mrc: File already exists."
 
+    # Swap axes to conform with mrc standard
+    stack = np.moveaxis(simObj.all_intensities.astype(np.float32), 2, 0)
+
     with mrcfile.new(filename) as mrc:
-        mrc.set_data(simObj.all_intensities.astype(np.float32))
+        mrc.set_data(stack)

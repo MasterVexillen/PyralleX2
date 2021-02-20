@@ -16,6 +16,7 @@ import PyralleX2.src.PyralleX2.beam as Beam
 import PyralleX2.src.PyralleX2.screen as Screen
 import PyralleX2.src.PyralleX2.simulation as Simulation
 import PyralleX2.src.PyralleX2.params as Params
+import PyralleX2.src.PyralleX2.visualise as Visualise
 
 
 def get_task():
@@ -75,7 +76,6 @@ def get_simulation_objs(params_in):
         mct_angle_step=params_in['simulation']['angle_step'],
         mct_max_angle=params_in['simulation']['max_angle'],
         bs_coverage=params_in['output']['backstop_coverage'],
-        gamma_corr=params_in['output']['gamma_correction'],
     )
 
     return (my_sample, my_beam, my_screen, my_image)
@@ -121,6 +121,27 @@ def main():
         mrc_name = params['output']['output_file']
         Simulation.export_mrc(mrc_name, image)
 
+    elif task == 'visualise':
+        assert (len(sys.argv)==3),\
+            "Error: config file must be provided for task = 'visualise'."
+        config_name = sys.argv[2]
+        assert (os.path.isfile(config_name)),\
+            "Error: Config file not found."
+
+        params = Params.read_config(config_name)
+        mrc_file = params['display']['source']
+
+        assert (os.path.isfile(mrc_file)),\
+            "Error: mrc file not found."
+
+        image_index = input("Index of image to be displayed? ")
+        mrc_data = Visualise.extract_image(mrc_file, int(image_index))
+        Visualise.display_image(
+            data_in=mrc_data,
+            gamma=params['display']['gamma_correction'],
+            figsize=params['display']['figsize'],
+            cmap=params['display']['cmap'],
+        )
 
 if __name__ == '__main__':
     main()
