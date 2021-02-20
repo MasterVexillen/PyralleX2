@@ -1,14 +1,18 @@
 """
 pyrallex2.simulation.py
-Version: 0.1
+Version: 0.3
 
 AUTHOR: Neville Yee
 Date: 4-Feb-2021
 """
+
+import os
 import time
 import gc
+import mrcfile
 import numpy as np
 from sklearn.preprocessing import normalize
+
 
 class Simulation:
     """
@@ -151,7 +155,6 @@ class Simulation:
         return max_log_intensity
 
 
-
 def create_simulation(
         sampleObj=None,
         screenObj=None,
@@ -192,3 +195,20 @@ def create_simulation(
         bs_coverage,
         gamma_corr,
     )
+
+
+def export_mrc(filename, simObj):
+    """
+    Write out stack intensities to MRC file
+
+    Args:
+    filename (str): name of the MRC file
+    simObj (Simulation): the simulation object from simulations
+    """
+
+    # Check if file already exists
+    assert (not os.path.isfile(filename)), \
+        "Error in simulation.export_mrc: File already exists."
+
+    with mrcfile.new(filename) as mrc:
+        mrc.set_data(simObj.all_intensities.astype(np.float32))
