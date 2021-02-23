@@ -62,7 +62,7 @@ class Simulation:
 
         self.all_intensities = np.empty((self.screen.npix, self.screen.npix, self.num_images), dtype=np.float64)
 
-    def _single_scan(self):
+    def _single_scan(self, index_in):
         """
         Method for performing a scan at a single angle
 
@@ -81,12 +81,8 @@ class Simulation:
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
 
         def get_form_factor_atoms(hkl_in, frac_in):
-            # Switch for tqdm status bar
-            if self.num_images == 1:
-                ff_iterator = trange(len(self.sample.atom_list), desc='Scanning atoms... ')
-            elif self.num_images > 1:
-                ff_iterator = range(len(self.sample.atom_list))
-
+            ff_iterator = trange(len(self.sample.atom_list),
+                                 desc='Scanning image {} of {}... '.format(index_in+1, self.num_images))
             for i in ff_iterator:
                 yield atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
 
@@ -109,14 +105,9 @@ class Simulation:
         Method for performing full tomographic scan
         """
 
-        # Switch for tqdm status bar
-        if self.num_images == 1:
-            full_scan_iterator = range(self.num_images)
-        elif self.num_images > 1:
-            full_scan_iterator = trange(self.num_images, desc='Stacking images... ')
-
+        full_scan_iterator = range(self.num_images)
         for image_index in full_scan_iterator:
-            ss_i = self._single_scan()
+            ss_i = self._single_scan(image_index)
             self.all_intensities[:, :, image_index] = ss_i
             self.sample.rotate(self.rot_axis, self.angle_step)
 
