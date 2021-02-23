@@ -9,6 +9,8 @@ Date: 4-Feb-2021
 import os
 import time
 import gc
+import memory_profiler as mp
+from tqdm import trange
 import mrcfile
 import numpy as np
 from sklearn.preprocessing import normalize
@@ -77,23 +79,19 @@ class Simulation:
 
         atom_fs0_array = np.array([atom.charge * np.exp(ssq2_const / atom.atom_k) \
                                    for atom in self.sample.atom_list]).T
-
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
 
-        phase_terms = screen_hkl @ frac_pos_array
-        del frac_pos_array
-        del screen_hkl
-        gc.collect()
+        def get_form_factor_atoms(hkl_in, frac_in):
+            # Switch for tqdm status bar
+            if self.num_images == 1:
+                ff_iterator = trange(len(self.sample.atom_list), desc='Scanning atoms... ')
+            elif self.num_images > 1:
+                ff_iterator = range(len(self.sample.atom_list))
 
-        all_phase_kernals = np.exp(phase_terms)
-        del phase_terms
-        gc.collect()
+            for i in ff_iterator:
+                yield atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
 
-        form_factor_atoms = atom_fs0_array * all_phase_kernals
-        del atom_fs0_array
-        del all_phase_kernals
-        gc.collect()
-
+        form_factor_atoms = get_form_factor_atoms(screen_hkl, frac_pos_array)
         ss_form_factor = np.sum(form_factor_atoms, axis=2)
         del form_factor_atoms
         gc.collect()
@@ -101,9 +99,9 @@ class Simulation:
         # Blot out centre
         screen_twotheta = np.degrees(np.arcsin(np.sqrt(s_squared)*self.beam.wavelength))
         ss_form_factor[screen_twotheta < self.bs_coverage] = 0
+        ss_form_factor /= np.max(np.abs(ss_form_factor))
 
         ss_intensities = np.abs(ss_form_factor)**2
-        ss_intensities /= np.max(ss_intensities)
 
         return ss_form_factor, ss_intensities
 
@@ -112,17 +110,17 @@ class Simulation:
         Method for performing full tomographic scan
         """
 
-        ss_ff, ss_i = self._single_scan()
-        self.all_form_factors[:, :, 0] = ss_ff
-        self.all_intensities[:, :, 0] = ss_i
+        # Switch for tqdm status bar
+        if self.num_images == 1:
+            full_scan_iterator = range(self.num_images)
+        elif self.num_images > 1:
+            full_scan_iterator = trange(self.num_images, desc='Stacking images... ')
 
-        # microCT
-        if self.mct:
-            for image_index in range(1, self.num_images):
-                self.sample.rotate(self.rot_axis, self.angle_step)
-                ss_ff, ss_i = self._single_scan()
-                self.all_form_factors[:, :, image_index] = ss_ff
-                self.all_intensities[:, :, image_index] = ss_i
+        for image_index in full_scan_iterator:
+            ss_ff, ss_i = self._single_scan()
+            self.all_form_factors[:, :, image_index] = ss_ff
+            self.all_intensities[:, :, image_index] = ss_i
+            self.sample.rotate(self.rot_axis, self.angle_step)
 
     def get_intensity_prof(self, image_index):
         """
