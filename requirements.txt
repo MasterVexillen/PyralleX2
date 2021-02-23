@@ -6,3 +6,5 @@ matplotlib
 pandas
 scikit-build
 pyyaml
+memory_profiler
+tqdm

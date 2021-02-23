@@ -60,7 +60,6 @@ class Simulation:
         else:
             self.num_images = int((self.max_angle//self.angle_step) + 1)
 
-        self.all_form_factors = np.empty((self.screen.npix, self.screen.npix, self.num_images), dtype=np.complex64)
         self.all_intensities = np.empty((self.screen.npix, self.screen.npix, self.num_images), dtype=np.float64)
 
     def _single_scan(self):
@@ -103,7 +102,7 @@ class Simulation:
 
         ss_intensities = np.abs(ss_form_factor)**2
 
-        return ss_form_factor, ss_intensities
+        return ss_intensities
 
     def full_scan(self):
         """
@@ -117,8 +116,7 @@ class Simulation:
             full_scan_iterator = trange(self.num_images, desc='Stacking images... ')
 
         for image_index in full_scan_iterator:
-            ss_ff, ss_i = self._single_scan()
-            self.all_form_factors[:, :, image_index] = ss_ff
+            ss_i = self._single_scan()
             self.all_intensities[:, :, image_index] = ss_i
             self.sample.rotate(self.rot_axis, self.angle_step)
 
