@@ -135,10 +135,8 @@ def main():
         assert (os.path.isfile(mrc_file)),\
             "Error: mrc file not found."
 
-        image_index = input("Index of image to be displayed? ")
-        mrc_data = Visualise.extract_image(mrc_file, int(image_index))
         Visualise.display_image(
-            data_in=mrc_data,
+            mrc_in=mrc_file,
             gamma=params['display']['gamma_correction'],
             figsize=params['display']['figsize'],
             cmap=params['display']['cmap'],
