@@ -40,7 +40,6 @@ def extract_image(mrc_in, image_no):
 
 def display_image(
         mrc_in,
-        gamma,
         figsize,
         cmap,
 ):
@@ -49,7 +48,6 @@ def display_image(
 
     Args:
     mrc_in (ndarray): array containing intensities
-    gamma (float): gamma correction of image
     figsize (float): size (in inches) of displayed figure
     cmap (str): colour map code in matplotlib
     """
@@ -61,28 +59,31 @@ def display_image(
     with mrcfile.open(mrc_in) as mrc:
         data = mrc.data
 
-    # apply gamma correction
-    data = data**(gamma)
-
     fig, ax = plt.subplots(1, 1, figsize=(figsize, figsize))
-    fig.subplots_adjust(left=0.05, bottom=0.15, right=0.95, top=0.95)
+    fig.subplots_adjust(left=0.05, bottom=0.18, right=0.95, top=0.95)
 
-    # set default to slice 0
-    image = data[0]
+    # set default to slice 0 with gamma=0.5
+    image = data[0]**0.5
     show_obj = ax.imshow(image.T, cmap=cmap)
 
-    # define slider
     ax = fig.add_axes([0.15, 0.05, 0.75, 0.03])
+    gamma_slider = Slider(ax, 'Gamma:', 0, 1, valinit=0.5)
+
+    # define slider for stacks
+    ax = fig.add_axes([0.15, 0.1, 0.75, 0.03])
     slider = Slider(ax, 'Image index:', 0, data.shape[0]-1, valinit=0, valfmt='%i')
 
     def update(val):
         """
         Method to update image according to slider value
         """
-        ind = int(slider.val)
-        image = data[ind]
+        index = int(slider.val)
+        gamma = float(gamma_slider.val)
+        image = data[index]**gamma
         show_obj.set_data(image.T)
         fig.canvas.draw()
 
     slider.on_changed(update)
+    gamma_slider.on_changed(update)
+
     plt.show()

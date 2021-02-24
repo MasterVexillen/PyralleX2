@@ -50,7 +50,6 @@ def create_config(filename_in):
 
         'display': {
             'source': '',
-            'gamma_correction': 0.5,
             'figsize': 9.,
             'cmap': 'gist_yarg',
         }
@@ -137,8 +136,3 @@ def validate_config(filename_in):
             "Error in params.validate: backstop_coverage must be a float > 0."
     assert (len(params['output']['output_file']) > 0),\
         "Error in params.validate: output_file must be valid file name for the output."
-
-    # Check display group params
-    assert (isinstance(params['display']['gamma_correction'], float) and \
-            0 <= params['display']['gamma_correction'] < 1),\
-            "Error in params.validate: gamma_correction must be a float and between 0 and 1."

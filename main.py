@@ -137,7 +137,6 @@ def main():
 
         Visualise.display_image(
             mrc_in=mrc_file,
-            gamma=params['display']['gamma_correction'],
             figsize=params['display']['figsize'],
             cmap=params['display']['cmap'],
         )
