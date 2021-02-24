@@ -82,7 +82,9 @@ class Simulation:
 
         def get_form_factor_atoms(hkl_in, frac_in):
             ff_iterator = trange(len(self.sample.atom_list),
-                                 desc='Scanning image {} of {}... '.format(index_in+1, self.num_images))
+                                 desc='Scanning image {:3d}/{:3d}... '.format(index_in+1, self.num_images),
+                                 ncols=120,
+            )
             for i in ff_iterator:
                 yield atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
 

@@ -30,7 +30,7 @@ def get_task():
         'new_config',
         'validate',
         'simulate',
-        'visualise',
+        'viewslice',
     ]
     assert (task in allowed_tasks), \
         "Error in main.get_task: input task not recognised."
@@ -122,7 +122,7 @@ def main():
         mrc_name = params['output']['output_file']
         Simulation.export_mrc(mrc_name, image)
 
-    elif task == 'visualise':
+    elif task == 'viewslice':
         assert (len(sys.argv)==3),\
             "Error: config file must be provided for task = 'visualise'."
         config_name = sys.argv[2]

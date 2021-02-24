@@ -35,4 +35,4 @@ where `${PYRA_PATH}` is the folder containing the codebase. Currently allowed `T
 * `new_config`: Creates new config (YAML) file as simulation inputs.
 * `validate`: Validate an existing config file. *Config file must be provided.*
 * `simulate`: Perform simulation using parameters in config file. *Config file must be provided.*
-* `visualise`: Display an image from given stack. *Config file must be provided.*
+* `viewslice`: Display a slice from given stack. *Config file must be provided.*

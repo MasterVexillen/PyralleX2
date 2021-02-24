@@ -85,5 +85,4 @@ def display_image(
         fig.canvas.draw()
 
     slider.on_changed(update)
-#    plt.tight_layout()
     plt.show()
