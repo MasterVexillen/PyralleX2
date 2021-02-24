@@ -21,6 +21,7 @@ def create_config(filename_in):
     config_dict = {
         'sample': {
             'sample_file': '',
+            'mode': '',
         },
 
         'beam': {
@@ -95,6 +96,8 @@ def validate_config(filename_in):
         "Error in params.validate: sample_file must be valid file name for cell file."
     assert (os.path.isfile(params['sample']['sample_file'])),\
         "Error in params.validate: Input Cell file not found."
+    assert (params['sample']['mode'] in ['single', 'crystal']), \
+        "Error in params.validate: sample mode must be either 'single' or 'crystal'"
 
     # Check beam group params
     assert (isinstance(params['beam']['wavelength'], float) and \

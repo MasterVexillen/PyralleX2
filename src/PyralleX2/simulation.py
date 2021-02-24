@@ -76,6 +76,12 @@ class Simulation:
         s_squared = np.linalg.norm(screen_s, axis=2)**2
         ssq2_const = -np.pi**2 * s_squared
 
+        if self.sample.mode == 'crystal':
+            thres = 500
+            crystal_thetas = 2 * np.pi * screen_hkl
+            crystal_kernals = 1 + 0.25 * np.sin((thres+1)*crystal_thetas) / np.sin(0.5*crystal_thetas+0.000001)
+            crystal_term = np.prod(crystal_kernals, axis=-1)
+
         atom_fs0_array = np.array([atom.charge * np.exp(ssq2_const / atom.atom_k) \
                                    for atom in self.sample.atom_list]).T
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
@@ -86,7 +92,11 @@ class Simulation:
                                  ncols=120,
             )
             for i in ff_iterator:
-                yield atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
+                form_factor_bare = atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
+                if self.sample.mode == 'crystal':
+                    yield form_factor_bare * crystal_term
+                else:
+                    yield form_factor_bare
 
         form_factor_atoms = get_form_factor_atoms(screen_hkl, frac_pos_array)
         ss_form_factor = np.sum(form_factor_atoms, axis=2)

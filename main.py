@@ -50,7 +50,10 @@ def get_simulation_objs(params_in):
     """
 
     # Create sample for simulation
-    my_sample = Sample.create_sample(params_in['sample']['sample_file'])
+    my_sample = Sample.create_sample(
+        cell_filename=params_in['sample']['sample_file'],
+        mode_in=params_in['sample']['mode'],
+    )
 
     # Prepare X-ray beam
     my_beam = Beam.create_beam(

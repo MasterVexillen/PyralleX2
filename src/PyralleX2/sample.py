@@ -65,6 +65,7 @@ class Sample:
             self,
             atom_list=list(),
             cell_vec=None,
+            mode=None,
     ):
 
         """
@@ -73,9 +74,11 @@ class Sample:
         ARGS:
             atom_list (list): list of Atom objects
             cell_vec (ndarray): cell vectors
+            mode (str): type of sample [single / crystal]
         """
         self.atom_list = atom_list
         self.cell_vec = cell_vec
+        self.mode = mode
 
     def add_atom(self, atomObj):
         """
@@ -140,12 +143,13 @@ class Sample:
             atom.pos = self._rodrigues(atom.pos, rot_axis, angle)
 
 
-def create_sample(cell_filename):
+def create_sample(cell_filename, mode_in):
     """
     Create sample using given cell file
 
     ARGS:
         cell_filename (str): path to castep cell file
+        mode_in (str): type of sample [single / crystal]
 
     RETURNS:
         Sample object
@@ -153,7 +157,9 @@ def create_sample(cell_filename):
 
     # Read cell file and create empty sample
     my_cell = Cell_parse.read_cell_file(cell_filename)
-    my_sample = Sample(cell_vec=my_cell.lattice_array)
+    my_sample = Sample(cell_vec=my_cell.lattice_array,
+                       mode=mode_in,
+    )
 
     # Load preset atom parameters
     atom_params = Atom_param.atom_params
