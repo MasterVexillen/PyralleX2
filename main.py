@@ -120,7 +120,9 @@ def main():
 
         # Export file
         mrc_name = params['output']['output_file']
+        spectra_name = params['output']['spectra_file']
         Simulation.export_mrc(mrc_name, image)
+        Simulation.export_spectra(spectra_name, image)
 
     elif task == 'viewslice':
         assert (len(sys.argv)==3),\
@@ -131,12 +133,14 @@ def main():
 
         params = Params.read_config(config_name)
         mrc_file = params['display']['source']
+        spec_file = params['display']['spec_source']
 
         assert (os.path.isfile(mrc_file)),\
             "Error: mrc file not found."
 
         Visualise.display_image(
             mrc_in=mrc_file,
+            spec_in=spec_file,
             figsize=params['display']['figsize'],
             cmap=params['display']['cmap'],
         )

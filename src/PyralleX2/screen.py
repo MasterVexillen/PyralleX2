@@ -43,6 +43,8 @@ class Screen:
         self.coords = (screen_shape, dims, npix, max_twotheta)
         self._rotate_screen(beam_axis)
 
+        self.two_theta = beam_axis
+
     @property
     def coords(self):
         """
@@ -83,6 +85,18 @@ class Screen:
         for icount in range(self.npix):
             for jcount in range(self.npix):
                 self._coords[icount, jcount] /= coords_norm[icount, jcount]
+
+    @property
+    def two_theta(self):
+        """
+        Values of the 2theta at each pixel
+        """
+        return self._two_theta
+
+    @two_theta.setter
+    def two_theta(self, val):
+        _cos_theta = self.coords @ val
+        self._two_theta = 2 * np.rad2deg(np.arccos(_cos_theta))
 
     def _rotate_screen(self, scan_axis_in):
         """

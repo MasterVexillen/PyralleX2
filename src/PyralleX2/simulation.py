@@ -88,8 +88,8 @@ class Simulation:
         gc.collect()
 
         # Blot out centre
-        screen_twotheta = np.degrees(np.arcsin(np.sqrt(self._s_squared)*self.beam.wavelength))
-        ss_form_factor[screen_twotheta < self.bs_coverage] = 0
+#        screen_twotheta = np.degrees(np.arcsin(np.sqrt(self._s_squared)*self.beam.wavelength))
+        ss_form_factor[self.screen.two_theta < self.bs_coverage] = 0
         ss_form_factor /= np.max(np.abs(ss_form_factor))
 
         ss_intensities = np.abs(ss_form_factor)**2
@@ -186,3 +186,33 @@ def export_mrc(filename, simObj):
 
     with mrcfile.new(filename) as mrc:
         mrc.set_data(stack)
+
+
+def export_spectra(filename, simObj):
+    """
+    Write out spectral data from simulations
+
+    Args:
+    filename (str): name of the MRC file containing the binned intensities
+    simObj (Simulation): the simulation object from simulations
+    """
+
+    max_twotheta = simObj.screen.max_twotheta
+    bins = np.linspace(0, max_twotheta, simObj.screen.npix//2)
+    twotheta_bins = np.digitize(simObj.screen.two_theta, bins)
+
+    binned_intensities = np.zeros((simObj.num_images+1, len(bins)))
+    binned_intensities[0] = bins
+    for i in range(simObj.screen.npix):
+        for j in range(simObj.screen.npix):
+            if simObj.screen.two_theta[i, j] > max_twotheta:
+                continue
+            else:
+                binned_intensities[1:, twotheta_bins[i, j]-1] += simObj.all_intensities[i, j]
+
+    # Check if file already exists
+    assert (not os.path.isfile(filename)), \
+        "Error in simulation.export_spectra: File already exists."
+
+    with mrcfile.new(filename) as mrc:
+        mrc.set_data(binned_intensities.astype(np.float32))

@@ -46,6 +46,7 @@ def create_config(filename_in):
             'backstop_coverage': 5,
             'format': 'mrc',
             'output_file': '',
+            'spectra_file': '',
         },
 
         'display': {
@@ -136,3 +137,5 @@ def validate_config(filename_in):
             "Error in params.validate: backstop_coverage must be a float > 0."
     assert (len(params['output']['output_file']) > 0),\
         "Error in params.validate: output_file must be valid file name for the output."
+    assert (len(params['output']['spectra_file']) > 0),\
+        "Error in params.validate: spectra_file must be valid file name for the output."
