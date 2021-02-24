@@ -71,13 +71,7 @@ class Simulation:
         """
 
         # Form factor for single scan
-        screen_s = (self.screen.coords-self.beam.beam_vec) / self.beam.wavelength
-        screen_hkl = np.matmul(screen_s, self.sample.cell_vec.T)
-        s_squared = np.linalg.norm(screen_s, axis=2)**2
-        ssq2_const = -np.pi**2 * s_squared
-
-        atom_fs0_array = np.array([atom.charge * np.exp(ssq2_const / atom.atom_k) \
-                                   for atom in self.sample.atom_list]).T
+        screen_hkl = np.matmul(self._screen_s, self.sample.cell_vec.T)
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
 
         def get_form_factor_atoms(hkl_in, frac_in):
@@ -86,7 +80,7 @@ class Simulation:
                                  ncols=120,
             )
             for i in ff_iterator:
-                yield atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
+                yield self._atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
 
         form_factor_atoms = get_form_factor_atoms(screen_hkl, frac_pos_array)
         ss_form_factor = np.sum(form_factor_atoms, axis=2)
@@ -94,7 +88,7 @@ class Simulation:
         gc.collect()
 
         # Blot out centre
-        screen_twotheta = np.degrees(np.arcsin(np.sqrt(s_squared)*self.beam.wavelength))
+        screen_twotheta = np.degrees(np.arcsin(np.sqrt(self._s_squared)*self.beam.wavelength))
         ss_form_factor[screen_twotheta < self.bs_coverage] = 0
         ss_form_factor /= np.max(np.abs(ss_form_factor))
 
@@ -106,6 +100,12 @@ class Simulation:
         """
         Method for performing full tomographic scan
         """
+
+        self._screen_s = (self.screen.coords-self.beam.beam_vec) / self.beam.wavelength
+        self._s_squared = np.linalg.norm(self._screen_s, axis=2)**2
+        self._ssq2_const = -np.pi**2 * self._s_squared
+        self._atom_fs0_array = np.array([atom.charge * np.exp(self._ssq2_const / atom.atom_k) \
+                                   for atom in self.sample.atom_list]).T
 
         full_scan_iterator = range(self.num_images)
         for image_index in full_scan_iterator:

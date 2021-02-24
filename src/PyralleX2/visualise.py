@@ -66,6 +66,7 @@ def display_image(
     image = data[0]**0.5
     show_obj = ax.imshow(image.T, cmap=cmap)
 
+    # define slider for gamma correction
     ax = fig.add_axes([0.15, 0.05, 0.75, 0.03])
     gamma_slider = Slider(ax, 'Gamma:', 0, 1, valinit=0.5)
 
