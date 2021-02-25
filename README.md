@@ -29,10 +29,11 @@ conda activate pyra-env
 
 2. Execute PyralleX2
 ```
-python ${PYRA_PATH}/main.py TASK [config]
+pyrallex2.TASK [config]
 ```
 where `${PYRA_PATH}` is the folder containing the codebase. Currently allowed `TASK`s are:
-* `new_config`: Creates new config (YAML) file as simulation inputs.
+* `clear`: Cleans the current folder, erasing all images and spectral data.
+* `new`: Creates new config (YAML) file as simulation inputs.
 * `validate`: Validate an existing config file. *Config file must be provided.*
 * `simulate`: Perform simulation using parameters in config file. *Config file must be provided.*
-* `viewslice`: Display a slice from given stack. *Config file must be provided.*
+* `visualise`: Display a slice from given stack. *Config file must be provided.*

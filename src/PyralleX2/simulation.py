@@ -75,13 +75,16 @@ class Simulation:
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
 
         def get_form_factor_atoms(hkl_in, frac_in):
+            if index_in < self.num_images-1:
+                iter_leave = False
+            else:
+                iter_leave = True
             ff_iterator = trange(len(self.sample.atom_list),
                                  desc='Scanning through atoms...              ',
                                  ncols=150,
-                                 position=0,
+                                 position=1,
                                  leave=False,
                                  bar_format='{l_bar}{bar:50}{r_bar}{bar:-10b}',
-                                 miniters=100,
             )
             for i in ff_iterator:
                 yield self._atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
@@ -110,15 +113,15 @@ class Simulation:
         self._atom_fs0_array = np.array([atom.charge * np.exp(self._ssq2_const / atom.atom_k) \
                                    for atom in self.sample.atom_list]).T
 
-        full_scan_iterator = trange(self.num_images,
+        full_scan_iterator = trange(1, self.num_images+1,
                                     desc='Processing stack (overall progress)... ',
                                     leave=True,
-                                    position=1,
+                                    position=0,
                                     bar_format='{l_bar}{bar:50}{r_bar}',
         )
         for image_index in full_scan_iterator:
-            ss_i = self._single_scan(image_index)
-            self.all_intensities[:, :, image_index] = ss_i
+            ss_i = self._single_scan(image_index-1)
+            self.all_intensities[:, :, image_index-1] = ss_i
             self.sample.rotate(self.rot_axis, self.angle_step)
 
         print("")
