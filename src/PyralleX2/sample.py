@@ -101,6 +101,7 @@ class Sample:
         centroid = np.zeros(3)
         for count, atom in enumerate(self.atom_list):
             centroid += atom.pos
+        centroid /= len(self.atom_list)
 
         # Translate whole cell by original offset of centroid
         self.translation(-centroid)

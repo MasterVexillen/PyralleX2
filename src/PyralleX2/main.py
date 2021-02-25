@@ -157,7 +157,7 @@ def clear():
     """
     Clear previous result files
     """
-    user_input = input("This will erase all existing images and spectral data in this folder. Proceed? ([y]/n))").lower()
+    user_input = input("This will erase all existing images and spectral data in this folder. Proceed? ([y]/n)) ").lower()
 
     if len(user_input)==0 or user_input=='y':
         os.system("rm *.mrc *.spec")
