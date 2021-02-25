@@ -51,6 +51,7 @@ def create_config(filename_in):
 
         'display': {
             'source': '',
+            'spec_source': '',
             'figsize': 9.,
             'cmap': 'gist_yarg',
         }
