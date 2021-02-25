@@ -76,8 +76,12 @@ class Simulation:
 
         def get_form_factor_atoms(hkl_in, frac_in):
             ff_iterator = trange(len(self.sample.atom_list),
-                                 desc='Scanning image {:3d}/{:3d}... '.format(index_in+1, self.num_images),
-                                 ncols=120,
+                                 desc='Scanning through atoms...              ',
+                                 ncols=150,
+                                 position=0,
+                                 leave=False,
+                                 bar_format='{l_bar}{bar:50}{r_bar}{bar:-10b}',
+                                 miniters=100,
             )
             for i in ff_iterator:
                 yield self._atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
@@ -88,7 +92,6 @@ class Simulation:
         gc.collect()
 
         # Blot out centre
-#        screen_twotheta = np.degrees(np.arcsin(np.sqrt(self._s_squared)*self.beam.wavelength))
         ss_form_factor[self.screen.two_theta < self.bs_coverage] = 0
         ss_form_factor /= np.max(np.abs(ss_form_factor))
 
@@ -107,11 +110,18 @@ class Simulation:
         self._atom_fs0_array = np.array([atom.charge * np.exp(self._ssq2_const / atom.atom_k) \
                                    for atom in self.sample.atom_list]).T
 
-        full_scan_iterator = range(self.num_images)
+        full_scan_iterator = trange(self.num_images,
+                                    desc='Processing stack (overall progress)... ',
+                                    leave=True,
+                                    position=1,
+                                    bar_format='{l_bar}{bar:50}{r_bar}',
+        )
         for image_index in full_scan_iterator:
             ss_i = self._single_scan(image_index)
             self.all_intensities[:, :, image_index] = ss_i
             self.sample.rotate(self.rot_axis, self.angle_step)
+
+        print("")
 
     def get_intensity_prof(self, image_index):
         """
