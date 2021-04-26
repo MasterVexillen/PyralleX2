@@ -13,7 +13,7 @@ cd PyralleX2
 conda create -n pyra-env
 conda activate pyra-env
 conda install --file requirements.txt
-conda install --channel conda-forge mrcfiles
+conda install --channel conda-forge mrcfile
 ```
 
 3. Build PyralleX2
