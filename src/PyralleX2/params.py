@@ -24,7 +24,9 @@ def create_config(filename_in):
         },
 
         'beam': {
-            'wavelength': 1.5418,
+            'source_type': 'xray',
+            'xray_wavelength': 1.5418,
+            'el_energy': None,
             'vector': [1, 0, 0],
         },
 
