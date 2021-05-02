@@ -83,7 +83,7 @@ class Simulation:
                                  desc='Scanning through atoms...              ',
                                  ncols=150,
                                  position=1,
-                                 leave=False,
+                                 leave=iter_leave,
                                  bar_format='{l_bar}{bar:50}{r_bar}{bar:-10b}',
             )
             for i in ff_iterator:

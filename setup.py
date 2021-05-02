@@ -7,11 +7,11 @@ def main():
         install_requires=[],
         entry_points = {
             "console_scripts": [
-                "pyrallex2.clear=PyralleX2.src.PyralleX2.main:clear",
-                "pyrallex2.new=PyralleX2.src.PyralleX2.main:new_config",
-                "pyrallex2.validate=PyralleX2.src.PyralleX2.main:validate_config",
-                "pyrallex2.simulate=PyralleX2.src.PyralleX2.main:simulate",
-                "pyrallex2.visualise=PyralleX2.src.PyralleX2.main:viewslice",
+                "pyrallex2.clear=PyralleX2.main:clear",
+                "pyrallex2.new=PyralleX2.main:new_config",
+                "pyrallex2.validate=PyralleX2.main:validate_config",
+                "pyrallex2.simulate=PyralleX2.main:simulate",
+                "pyrallex2.visualise=PyralleX2.main:viewslice",
             ]
         }
     )
