@@ -11,12 +11,12 @@ import sys
 import os
 import time
 
-import PyralleX2.src.PyralleX2.sample as Sample
-import PyralleX2.src.PyralleX2.beam as Beam
-import PyralleX2.src.PyralleX2.screen as Screen
-import PyralleX2.src.PyralleX2.simulation as Simulation
-import PyralleX2.src.PyralleX2.params as Params
-import PyralleX2.src.PyralleX2.visualise as Visualise
+import PyralleX2.sample as Sample
+import PyralleX2.beam as Beam
+import PyralleX2.screen as Screen
+import PyralleX2.simulation as Simulation
+import PyralleX2.params as Params
+import PyralleX2.visualise as Visualise
 
 
 def get_task():
