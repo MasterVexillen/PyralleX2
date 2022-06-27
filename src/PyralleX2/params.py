@@ -21,6 +21,8 @@ def create_config(args_in):
     config_dict = {
         'sample': {
             'sample_file': str(args_in.sample_file.value),
+            'cell_type': args_in.cell_type.value,
+            'cell_vec': list(args_in.cell_vec.value),
         },
 
         'beam': {

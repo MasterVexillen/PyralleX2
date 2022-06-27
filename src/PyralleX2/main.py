@@ -11,6 +11,8 @@ import sys
 import os
 import time
 
+from icecream import ic
+
 from . import sample as Sample
 from . import beam as Beam
 from . import screen as Screen
@@ -51,7 +53,10 @@ def get_simulation_objs(params_in):
     """
 
     # Create sample for simulation
-    my_sample = Sample.create_sample(params_in['sample']['sample_file'])
+    my_sample = Sample.create_sample(coords_file=params_in['sample']['sample_file'],
+                                     cell_type=params_in['sample']['cell_type'],
+                                     cell_vec=params_in['sample']['cell_vec'],
+    )
 
     # Prepare X-ray beam
     my_beam = Beam.create_beam(
@@ -88,6 +93,18 @@ def new_config():
     Create new configuration file
     """
     args = MagicGUI.get_args_xray.show(run=True)
+
+    # Check cell vector format
+    if not isinstance(args.cell_vec.value, (list, tuple)):
+        raise TypeError("Input error: cell vector must be either a list or a tuple")
+
+    if args.cell_type.value=="Full":
+        assert (len(args.cell_vec.value)==9), \
+            "Input error: Full vector representation must have 9 components. USAGE: (ax, bx, cx, ay, by, cy, az, bz, cz)"
+    elif args.cell_type.value=="Reduced":
+        assert (len(args.cell_vec.value)==6), \
+            "Input error: Reduced vector representation must have 6 components. USAGE: (a, b, c, alpha, beta, gamma)"
+
     Params.create_config(args)
 
 
@@ -124,7 +141,8 @@ def simulate():
     mrc_name = params['output']['output_file']
     spectra_name = params['output']['spectra_file']
     Simulation.export_mrc(mrc_name, image)
-    Simulation.export_spectra(spectra_name, image)
+    if len(spectra_name) > 0:
+        Simulation.export_spectra(spectra_name, image)
 
 
 def viewslice():

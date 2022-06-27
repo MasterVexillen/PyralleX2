@@ -9,8 +9,12 @@ Date: 4-Feb-2021
 import numpy as np
 from sklearn.preprocessing import normalize
 
-import PyralleX2.cell_parse as Cell_parse
-import PyralleX2.Data.atom_param as Atom_param
+from icecream import ic
+
+from . import cell_parse as Cell_parse
+from . import io as IO
+from .Data import atom_param as Atom_param
+
 
 class Atom:
     """
@@ -141,7 +145,7 @@ class Sample:
             atom.pos = self._rodrigues(atom.pos, rot_axis, angle)
 
 
-def create_sample(cell_filename):
+def create_sample(coords_file, cell_type, cell_vec):
     """
     Create sample using given cell file
 
@@ -153,18 +157,40 @@ def create_sample(cell_filename):
     """
 
     # Read cell file and create empty sample
-    my_cell = Cell_parse.read_cell_file(cell_filename)
-    my_sample = Sample(cell_vec=my_cell.lattice_array)
+    if coords_file.endswith(".xyz"):
+        atom_list = IO.read_xyz(coords_file)
+    if coords_file.endswith(".pdb"):
+        atom_list = IO.read_pdb(coords_file)
+    if coords_file.endswith(".cif"):
+        atom_list = IO.read_cif(coords_file)
+
+    atomtypes_array = np.array(atom_list, dtype=object)[:, 0].astype(str)
+    position_array = np.concatenate(np.array(atom_list, dtype=object)[:, 1]).ravel().reshape((len(atomtypes_array), 3))
+    position_array -= position_array[np.argmin(position_array, axis=1)]
+
+    if cell_type == "Full":
+        cell_vec = np.array(cell_vec).reshape((3,3))
+    else:
+        cell_vec = Cell_parse.Cell.niggly_to_cartesian(np.array(cell_vec).reshape((2,3)))
+
+    my_sample = Sample(cell_vec=cell_vec)
+
+    # Calculate fractional position of atoms
+    fractional_array = position_array @ np.linalg.inv(cell_vec.T)
+
+    # Check if no atom is outside of defined unit cell
+    assert (np.max(fractional_array) < 1), \
+        "AssertionError: at least 1 atom is outside of the bounding box. Unit cell needs to be larger."
 
     # Load preset atom parameters
     atom_params = Atom_param.atom_params
 
-    for index, atom in enumerate(my_cell.atomtypes_array):
+    for index, atom in enumerate(atomtypes_array):
         curr_atom = Atom(element=atom,
                          charge=atom_params[atom_params['Name']==atom].Charge.values[0],
                          width=atom_params[atom_params['Name']==atom].Width.values[0],
-                         pos=my_cell.position_array[index],
-                         frac_pos=my_cell.fractional_array[index])
+                         pos=position_array[index],
+                         frac_pos=fractional_array[index])
         my_sample.add_atom(curr_atom)
     my_sample.centre()
 

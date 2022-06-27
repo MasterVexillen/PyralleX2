@@ -190,14 +190,10 @@ def export_mrc(filename, simObj):
     simObj (Simulation): the simulation object from simulations
     """
 
-    # Check if file already exists
-    assert (not os.path.isfile(filename)), \
-        "Error in simulation.export_mrc: File already exists."
-
     # Swap axes to conform with mrc standard
     stack = np.moveaxis(simObj.all_intensities.astype(np.float32), 2, 0)
 
-    with mrcfile.new(filename) as mrc:
+    with mrcfile.new(filename, overwrite=True) as mrc:
         mrc.set_data(stack)
 
 
@@ -223,9 +219,5 @@ def export_spectra(filename, simObj):
             else:
                 binned_intensities[1:, twotheta_bins[i, j]-1] += simObj.all_intensities[i, j]
 
-    # Check if file already exists
-    assert (not os.path.isfile(filename)), \
-        "Error in simulation.export_spectra: File already exists."
-
-    with mrcfile.new(filename) as mrc:
+    with mrcfile.new(filename, overwrite=True) as mrc:
         mrc.set_data(binned_intensities.astype(np.float32))
