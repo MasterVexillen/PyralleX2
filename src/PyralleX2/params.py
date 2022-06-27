@@ -10,42 +10,42 @@ Version: 0.1
 import os
 import yaml
 
-def create_config(filename_in):
+def create_config(args_in):
     """
     Create a new config file
 
     Args:
-    filename_in (str): filename of the output yaml file
+    args_in (str) :: Input arguments
     """
 
     config_dict = {
         'sample': {
-            'sample_file': '',
+            'sample_file': str(args_in.sample_file.value),
         },
 
         'beam': {
-            'wavelength': 1.5418,
-            'vector': [1, 0, 0],
+            'wavelength': args_in.beam_type.value.value,
+            'vector': args_in.beam_vector.value,
         },
 
         'screen': {
-            'pixels': 120,
-            'shape': 'cylindrical',
-            'dimensions': 50,
-            'max_2_theta': 80,
+            'pixels': args_in.screen_size_px.value,
+            'shape': args_in.screen_shape.value,
+            'dimensions': args_in.screen_dims_A.value,
+            'max_2_theta': args_in.screen_max2theta.value,
         },
 
         'simulation': {
-            'run_tomo': False,
-            'rotational_axis': [0, 0, 1],
-            'angle_step': 3,
-            'max_angle': 180,
+            'run_tomo': args_in.tomo.value,
+            'rotational_axis': args_in.rot_axis.value,
+            'angle_step': args_in.angle_step.value,
+            'max_angle': args_in.max_angle.value,
         },
 
         'output': {
-            'backstop_coverage': 5,
+            'backstop_coverage': args_in.bs_coverage.value,
             'format': 'mrc',
-            'output_file': '',
+            'output_file': str(args_in.output_file.value),
             'spectra_file': '',
         },
 
@@ -57,7 +57,7 @@ def create_config(filename_in):
         }
     }
 
-    with open(filename_in, 'w') as f:
+    with open(str(args_in.config_file.value), 'w') as f:
         yaml.dump(config_dict, f, indent=4, sort_keys=False)
 
 

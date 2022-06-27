@@ -11,12 +11,13 @@ import sys
 import os
 import time
 
-import PyralleX2.sample as Sample
-import PyralleX2.beam as Beam
-import PyralleX2.screen as Screen
-import PyralleX2.simulation as Simulation
-import PyralleX2.params as Params
-import PyralleX2.visualise as Visualise
+from . import sample as Sample
+from . import beam as Beam
+from . import screen as Screen
+from . import simulation as Simulation
+from . import params as Params
+from . import visualise as Visualise
+from . import magicgui as MagicGUI
 
 
 def get_task():
@@ -86,10 +87,8 @@ def new_config():
     """
     Create new configuration file
     """
-    config_name = input("Name of new config file? (Default: config.yaml) ")
-    if len(config_name) == 0:
-        config_name = "config.yaml"
-    Params.create_config(config_name)
+    args = MagicGUI.get_args_xray.show(run=True)
+    Params.create_config(args)
 
 
 def validate_config():
