@@ -14,6 +14,8 @@ setup(
         "pandas",
         "scikit-build",
         "pyyaml",
+        "biopython",
+        "pdbecif",
         "memory_profiler",
         "tqdm",
         "icecream",
