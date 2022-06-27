@@ -74,6 +74,12 @@ class Simulation:
         screen_hkl = np.matmul(self._screen_s, self.sample.cell_vec.T)
         frac_pos_array = np.array([atom.frac_pos for atom in self.sample.atom_list]).T * 2j * np.pi
 
+        if self.sample.sample_crystal:
+            N = 30
+            crystal_thetas = 2 * np.pi * screen_hkl
+            crystal_kernals = 1 + 0.25 * np.sin((N+1)*crystal_thetas) / np.sin(0.5*crystal_thetas+0.000001)
+            crystal_term = np.prod(crystal_kernals, axis=-1)
+
         def get_form_factor_atoms(hkl_in, frac_in):
             if index_in < self.num_images-1:
                 iter_leave = False
@@ -87,7 +93,11 @@ class Simulation:
                                  bar_format='{l_bar}{bar:50}{r_bar}{bar:-10b}',
             )
             for i in ff_iterator:
-                yield self._atom_fs0_array[:, :, i] * np.exp(screen_hkl @ frac_pos_array[:, i])
+                ff_bare = self._atom_fs0_array[:, :, i] * np.exp(hkl_in @ frac_in[:, i])
+                if self.sample.sample_crystal:
+                    yield ff_bare * crystal_term
+                else:
+                    yield ff_bare
 
         form_factor_atoms = get_form_factor_atoms(screen_hkl, frac_pos_array)
         ss_form_factor = np.sum(form_factor_atoms, axis=2)
