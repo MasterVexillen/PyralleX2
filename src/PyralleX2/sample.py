@@ -69,7 +69,7 @@ class Sample:
             self,
             atom_list=list(),
             cell_vec=None,
-            sample_crystal=False,
+            supercell_dims=(1, 1, 1),
     ):
 
         """
@@ -81,7 +81,7 @@ class Sample:
         """
         self.atom_list = atom_list
         self.cell_vec = cell_vec
-        self.sample_crystal = sample_crystal
+        self.supercell_dims = supercell_dims
 
     def add_atom(self, atomObj):
         """
@@ -147,7 +147,7 @@ class Sample:
             atom.pos = self._rodrigues(atom.pos, rot_axis, angle)
 
 
-def create_sample(coords_file, cell_type, cell_vec, sample_crystal):
+def create_sample(coords_file, cell_type, cell_vec, supercell_dims):
     """
     Create sample using given cell file
 
@@ -176,7 +176,7 @@ def create_sample(coords_file, cell_type, cell_vec, sample_crystal):
         cell_vec = Cell_parse.Cell.niggly_to_cartesian(np.array(cell_vec).reshape((2,3)))
 
     my_sample = Sample(cell_vec=cell_vec,
-                       sample_crystal=sample_crystal
+                       supercell_dims=supercell_dims
     )
 
     # Calculate fractional position of atoms

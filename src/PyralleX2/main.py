@@ -56,7 +56,7 @@ def get_simulation_objs(params_in):
     my_sample = Sample.create_sample(coords_file=params_in['sample']['sample_file'],
                                      cell_type=params_in['sample']['cell_type'],
                                      cell_vec=params_in['sample']['cell_vec'],
-                                     sample_crystal=params_in['sample']['sample_crystal'],
+                                     supercell_dims=params_in['sample']['supercell_dims'],
     )
 
     # Prepare X-ray beam
