@@ -135,6 +135,9 @@ def simulate():
     params = Params.read_config(config_name)
     sample, beam, screen, image = get_simulation_objs(params)
 
+    # Centre sample
+    sample.centre()
+
     # Let there be light (...x-ray)
     image.full_scan()
 
