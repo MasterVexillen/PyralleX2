@@ -60,8 +60,11 @@ def get_simulation_objs(params_in):
     )
 
     # Prepare X-ray beam
+    beam_source = params_in['beam']['source_type']
     my_beam = Beam.create_beam(
-        wavelength=params_in['beam']['wavelength'],
+        source=beam_source,
+        xray_wvl=params_in['beam']['xray_wavelength'] if beam_source=='xray' else None,
+        el_energy=params_in['beam']['el_energy'] if beam_source=='electron' else None,
         beam_vec=params_in['beam']['vector'],
     )
 

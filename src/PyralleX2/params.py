@@ -27,8 +27,10 @@ def create_config(args_in):
         },
 
         'beam': {
-            'wavelength': args_in.beam_type.value.value,
-            'vector': args_in.beam_vector.value,
+            'source_type': 'xray',
+            'xray_wavelength': 1.5418,
+            'el_energy': None,
+            'vector': [1, 0, 0],
         },
 
         'screen': {
