@@ -9,6 +9,9 @@ Date: 4-Feb-2021
 import numpy as np
 from sklearn.preprocessing import normalize
 
+from icecream import ic
+
+
 class Screen:
     """
     Class encapsulating a Screen object
@@ -56,7 +59,7 @@ class Screen:
     def coords(self, vals):
         self._coords = np.zeros((self.npix, self.npix, 3), dtype=np.float32)
 
-        if self.screen_shape == 'flat':
+        if self.screen_shape == 'Flat':
             screen_dist = 0.5*self.dims / np.tan(np.radians(0.5*self.max_twotheta))
             dy = self.dims / self.npix
             dz = self.dims / self.npix
@@ -66,7 +69,7 @@ class Screen:
                 for j in range(self.npix):
                     self._coords[i, j, :] = [screen_dist, ymin+i*dy, zmin+j*dz]
 
-        elif self.screen_shape == 'cylindrical':
+        elif self.screen_shape == 'Cylindrical':
             screen_dist = self.dims / np.radians(self.max_twotheta)         # s = r*theta (in radians)
             theta_min = -0.5*np.radians(self.max_twotheta)
             dtheta = -2*theta_min / self.npix
